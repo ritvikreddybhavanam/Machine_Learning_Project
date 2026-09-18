@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cinephile — Box Office Prediction</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Hanken Grotesk", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    },
+                    colors: {
+                        cine: {
+                            black: "#080A0C",
+                            dark: "#0D1013",
+                            card: "#11161A",
+                            card2: "#151B20",
+                            green: "#00E054",
+                            green2: "#43FE6D",
+                            muted: "#8A939B",
+                            border: "#252C32"
+                        }
+                    },
+                    boxShadow: {
+                        glow: "0 0 35px rgba(0,224,84,0.12)",
+                        glowStrong: "0 0 50px rgba(0,224,84,0.22)"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(0, 224, 84, 0.08),
+                    transparent 35%
+                ),
+                #080A0C;
+            color: #f5f7f8;
+            font-family: Inter, sans-serif;
+        }
+
+        .display-font {
+            font-family: "Hanken Grotesk", sans-serif;
+        }
+
+        .mono-font {
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        .glass {
+            background: rgba(17, 22, 26, 0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .input-box {
+            width: 100%;
+            background: #0c1013;
+            border: 1px solid #252C32;
+            color: #f5f7f8;
+            border-radius: 10px;
+            padding: 12px 14px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .input-box:hover {
+            border-color: #343D45;
+        }
+
+        .input-box:focus {
+            border-color: #00E054;
+            box-shadow: 0 0 0 3px rgba(0,224,84,0.10);
+        }
+
+        select.input-box {
+            cursor: pointer;
+        }
+
+        select.input-box option {
+            background: #11161A;
+            color: white;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #aeb7be;
+            letter-spacing: 0.02em;
+        }
+
+        .section-card {
+            background: rgba(17, 22, 26, 0.88);
+            border: 1px solid #20272D;
+            border-radius: 18px;
+            padding: 24px;
+        }
+
+        .checkbox-card {
+            background: #0c1013;
+            border: 1px solid #252C32;
+            border-radius: 12px;
+            transition: 0.2s ease;
+        }
+
+        .checkbox-card:hover {
+            border-color: #3a444c;
+            background: #10151A;
+        }
+
+        .checkbox-card:has(input:checked) {
+            border-color: rgba(0,224,84,0.55);
+            background: rgba(0,224,84,0.055);
+        }
+
+        .checkbox {
+            width: 17px;
+            height: 17px;
+            accent-color: #00E054;
+            cursor: pointer;
+        }
+
+        .predict-btn {
+            position: relative;
+            overflow: hidden;
+            background: #00E054;
+            color: #061008;
+            transition: 0.25s ease;
+        }
+
+        .predict-btn:hover {
+            background: #43FE6D;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 35px rgba(0,224,84,0.18);
+        }
+
+        .predict-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-number {
+            font-family: "Hanken Grotesk", sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .bar-bg {
+            height: 10px;
+            background: #20262B;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                #00E054,
+                #43FE6D
+            );
+            border-radius: inherit;
+            transition: width 0.8s ease;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: #00E054;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.45s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00E054;
+            box-shadow: 0 0 10px rgba(0,224,84,0.8);
+        }
+
+        .scrollbar::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .scrollbar::-webkit-scrollbar-track {
+            background: #0a0d0f;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #252c32;
+            border-radius: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .section-card {
+                padding: 18px;
+            }
+
+            .hero-title {
+                font-size: 42px !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- ================= HEADER ================= -->
+
+<header class="sticky top-0 z-40 glass border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+        <div class="h-16 flex items-center justify-between">
+
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-9 h-9 rounded-lg bg-cine-green flex items-center justify-center"
+                >
+                    <i data-lucide="clapperboard" class="w-5 h-5 text-black"></i>
+                </div>
+
+                <div>
+                    <div class="display-font font-bold text-lg tracking-tight">
+                        CINEPHILE
+                    </div>
+
+                    <div class="text-[9px] uppercase tracking-[0.25em] text-cine-muted">
+                        Box Office AI
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden sm:flex items-center gap-2 text-xs text-cine-muted">
+                <span class="status-dot"></span>
+                <span>Prediction Engine Online</span>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="relative min-h-screen grid-bg">
+
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-12">
+
+        <!-- HERO -->
+
+        <section class="text-center max-w-4xl mx-auto mb-12">
+
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cine-green/20 bg-cine-green/5 text-cine-green text-[11px] font-semibold uppercase tracking-wider mb-5"
+            >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                AI Forecasting Engine
+            </div>
+
+            <h1
+                class="hero-title display-font text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-none"
+            >
+                Predict the
+                <span class="text-cine-green">Box Office.</span>
+            </h1>
+
+            <p class="mt-5 text-sm sm:text-base text-cine-muted max-w-2xl mx-auto leading-7">
+                Enter the details of an upcoming film and let the machine learning
+                model estimate its potential theatrical revenue.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3 mt-6">
+
+                <div class="px-3 py-2 rounded-lg bg-white/[0.025] border border-white/5">
+                    <span class="mono-font text-xs text-cine-green">
+                        ELASTIC NET
+                    </span>
+                </div>
+
+                <div class="px-3 py-2 rounded-lg bg-white/[0.025] border border-white/5">
+                    <span class="mono-font text-xs text-cine-muted">
+                        GLOBAL FILMS
+                    </span>
+                </div>
+
+                <div class="px-3 py-2 rounded-lg bg-white/[0.025] border border-white/5">
+                    <span class="mono-font text-xs text-cine-muted">
+                        REAL-TIME API
+                    </span>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- CONTENT GRID -->
+
+        <div class="grid grid-cols-1 lg:grid-cols-[1.35fr_0.65fr] gap-6">
+
+            <!-- ================= FORM ================= -->
+
+            <section class="section-card">
+
+                <div class="flex items-start justify-between gap-4 mb-7">
+
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div
+                                class="w-7 h-7 rounded-md bg-cine-green/10 flex items-center justify-center"
+                            >
+                                <i data-lucide="sliders-horizontal"
+                                   class="w-4 h-4 text-cine-green"></i>
+                            </div>
+
+                            <h2 class="display-font text-xl font-bold">
+                                Film Parameters
+                            </h2>
+                        </div>
+
+                        <p class="text-xs text-cine-muted">
+                            Configure the characteristics of your film.
+                        </p>
+                    </div>
+
+                    <span
+                        class="hidden sm:block mono-font text-[10px] text-cine-muted border border-white/10 rounded-md px-2 py-1"
+                    >
+                        12 INPUTS
+                    </span>
+
+                </div>
+
+
+                <!-- RELEASE -->
+
+                <div class="mb-8">
+
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-5 h-5 rounded bg-white/5 flex items-center justify-center">
+                            <i data-lucide="calendar-days"
+                               class="w-3.5 h-3.5 text-cine-muted"></i>
+                        </span>
+
+                        <h3 class="text-sm font-semibold">
+                            Release & Market
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div>
+                            <label class="field-label">
+                                Release Period
+                            </label>
+
+                            <select id="releasePeriod" class="input-box">
+                                <option value="Festive/Holiday">Festive / Holiday</option>
+                                <option value="Regular Weekend">Regular Weekend</option>
+                                <option value="Summer Vacation">Summer Vacation</option>
+                                <option value="Clash Release">Clash Release</option>
+                                <option value="Dry Season">Dry Season</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="field-label">
+                                Genre
+                            </label>
+
+                            <select id="genre" class="input-box">
+                                <option value="Action">Action</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Thriller">Thriller</option>
+                                <option value="Sci-Fi">Sci-Fi</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Mythology">Mythology</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="field-label">
+                                Remake
+                            </label>
+
+                            <select id="whetherRemake" class="input-box">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="field-label">
+                                Franchise
+                            </label>
+
+                            <select id="whetherFranchise" class="input-box">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TALENT -->
+
+                <div class="mb-8">
+
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-5 h-5 rounded bg-white/5 flex items-center justify-center">
+                            <i data-lucide="users"
+                               class="w-3.5 h-3.5 text-cine-muted"></i>
+                        </span>
+
+                        <h3 class="text-sm font-semibold">
+                            Cast & Crew
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div>
+                            <label class="field-label">
+                                Lead Star
+                            </label>
+
+                            <select id="leadStar" class="input-box">
+                                <option value="Pan-India Superstar">
+                                    Pan-India Superstar
+                                </option>
+
+                                <option value="Tier 1 Star">
+                                    Tier 1 Star
+                                </option>
+
+                                <option value="Tier 2 Bankable Star">
+                                    Tier 2 Bankable Star
+                                </option>
+
+                                <option value="Ensemble Cast">
+                                    Ensemble Cast
+                                </option>
+
+                                <option value="Emerging Actor">
+                                    Emerging Actor
+                                </option>
+                            </select>
+                        </div>
+
+
+                        <div>
+                            <label class="field-label">
+                                Director
+                            </label>
+
+                            <select id="director" class="input-box">
+
+                                <option value="Blockbuster Visionary">
+                                    Blockbuster Visionary
+                                </option>
+
+                                <option value="Critically Acclaimed">
+                                    Critically Acclaimed
+                                </option>
+
+                                <option value="Consistent Commercial">
+                                    Consistent Commercial
+                                </option>
+
+                                <option value="Mid-budget Specialist">
+                                    Mid-budget Specialist
+                                </option>
+
+                                <option value="Debutant">
+                                    Debutant
+                                </option>
+
+                            </select>
+                        </div>
+
+
+                        <div>
+                            <label class="field-label">
+                                Music Director
+                            </label>
+
+                            <select id="musicDirector" class="input-box">
+
+                                <option value="Chartbuster Ace">
+                                    Chartbuster Ace
+                                </option>
+
+                                <option value="Melody Specialist">
+                                    Melody Specialist
+                                </option>
+
+                                <option value="Emerging Composer">
+                                    Emerging Composer
+                                </option>
+
+                                <option value="Multi-composer Album">
+                                    Multi-composer Album
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <!-- NEW TALENT -->
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+
+                        <label class="checkbox-card p-3 flex items-center gap-3 cursor-pointer">
+
+                            <input
+                                id="newActor"
+                                type="checkbox"
+                                class="checkbox"
+                            >
+
+                            <span>
+                                <span class="block text-xs font-semibold">
+                                    New Actor
+                                </span>
+
+                                <span class="block text-[10px] text-cine-muted mt-0.5">
+                                    First major role
+                                </span>
+                            </span>
+
+                        </label>
+
+
+                        <label class="checkbox-card p-3 flex items-center gap-3 cursor-pointer">
+
+                            <input
+                                id="newDirector"
+                                type="checkbox"
+                                class="checkbox"
+                            >
+
+                            <span>
+                                <span class="block text-xs font-semibold">
+                                    New Director
+                                </span>
+
+                                <span class="block text-[10px] text-cine-muted mt-0.5">
+                                    Directorial debut
+                                </span>
+                            </span>
+
+                        </label>
+
+
+                        <label class="checkbox-card p-3 flex items-center gap-3 cursor-pointer">
+
+                            <input
+                                id="newMusicDirector"
+                                type="checkbox"
+                                class="checkbox"
+                            >
+
+                            <span>
+                                <span class="block text-xs font-semibold">
+                                    New Music Director
+                                </span>
+
+                                <span class="block text-[10px] text-cine-muted mt-0.5">
+                                    New composer
+                                </span>
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SCALE -->
+
+                <div class="mb-8">
+
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-5 h-5 rounded bg-white/5 flex items-center justify-center">
+                            <i data-lucide="landmark"
+                               class="w-3.5 h-3.5 text-cine-muted"></i>
+                        </span>
+
+                        <h3 class="text-sm font-semibold">
+                            Scale & Budget
+                        </h3>
+                    </div>
+
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div>
+
+                            <label class="field-label">
+                                Number of Screens
+                            </label>
+
+                            <div class="relative">
+
+                                <input
+                                    id="numberOfScreens"
+                                    type="number"
+                                    min="1"
+                                    value="4200"
+                                    class="input-box pr-20"
+                                >
+
+                                <span
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-cine-muted mono-font"
+                                >
+                                    SCREENS
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <label class="field-label">
+                                Budget
+                            </label>
+
+                            <div class="relative">
+
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-cine-muted"
+                                >
+                                    ₹
+                                </span>
+
+                                <input
+                                    id="budget"
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value="85"
+                                    class="input-box pl-8 pr-20"
+                                >
+
+                                <span
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-cine-muted mono-font"
+                                >
+                                    CRORE
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="pt-5 border-t border-white/5">
+
+                    <button
+                        id="predictBtn"
+                        onclick="triggerPrediction()"
+                        class="predict-btn w-full rounded-xl py-3.5 px-5 font-bold text-sm flex items-center justify-center gap-2"
+                    >
+                        <i data-lucide="wand-sparkles" class="w-4 h-4"></i>
+                        Predict Box Office
+                    </button>
+
+
+                    <div class="grid grid-cols-2 gap-3 mt-3">
+
+                        <button
+                            id="sampleBtn"
+                            type="button"
+                            class="rounded-lg py-2.5 text-xs font-semibold border border-white/10 text-cine-muted hover:text-white hover:bg-white/5 transition"
+                        >
+                            Load Sample
+                        </button>
+
+                        <button
+                            id="resetFormBtn"
+                            type="button"
+                            class="rounded-lg py-2.5 text-xs font-semibold border border-white/10 text-cine-muted hover:text-white hover:bg-white/5 transition"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= RESULT ================= -->
+
+            <aside>
+
+                <div
+                    id="resultCard"
+                    class="section-card sticky top-24 min-h-[500px] flex flex-col"
+                >
+
+                    <!-- INITIAL STATE -->
+
+                    <div
+                        id="emptyState"
+                        class="flex-1 flex flex-col items-center justify-center text-center"
+                    >
+
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-cine-green/5 border border-cine-green/10 flex items-center justify-center mb-5"
+                        >
+                            <i
+                                data-lucide="chart-no-axes-combined"
+                                class="w-7 h-7 text-cine-green"
+                            ></i>
+                        </div>
+
+                        <h3 class="display-font text-xl font-bold">
+                            Awaiting Prediction
+                        </h3>
+
+                        <p class="text-xs text-cine-muted max-w-xs mt-2 leading-6">
+                            Configure the film parameters and run the model to see
+                            the estimated box office revenue.
+                        </p>
+
+                        <div class="mt-6 flex items-center gap-2 text-[10px] text-cine-muted mono-font">
+                            <span class="status-dot"></span>
+                            MODEL READY
+                        </div>
+
+                    </div>
+
+
+                    <!-- RESULT STATE -->
+
+                    <div id="predictionResult" class="hidden fade-up">
+
+                        <div class="flex items-center justify-between mb-6">
+
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.2em] text-cine-muted mono-font">
+                                    Estimated Revenue
+                                </p>
+
+                                <h3 class="display-font text-xl font-bold mt-1">
+                                    Box Office Forecast
+                                </h3>
+                            </div>
+
+                            <div
+                                class="w-9 h-9 rounded-lg bg-cine-green/10 flex items-center justify-center"
+                            >
+                                <i data-lucide="trending-up"
+                                   class="w-5 h-5 text-cine-green"></i>
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="rounded-2xl bg-cine-green/[0.045] border border-cine-green/15 p-6 text-center"
+                        >
+
+                            <div
+                                id="predictedCroreVal"
+                                class="result-number text-5xl sm:text-6xl text-cine-green"
+                            >
+                                ₹0.00
+                            </div>
+
+                            <div
+                                class="text-xs text-cine-muted mt-2 uppercase tracking-widest mono-font"
+                            >
+                                Crore
+                            </div>
+
+                            <div
+                                id="predictionVerdict"
+                                class="inline-flex items-center gap-2 mt-5 px-3 py-1.5 rounded-full bg-white/5 text-xs font-semibold"
+                            >
+                                Awaiting
+                            </div>
+
+                        </div>
+
+
+                        <!-- RAW -->
+
+                        <div class="mt-5">
+
+                            <div class="flex items-center justify-between text-xs">
+
+                                <span class="text-cine-muted">
+                                    Estimated INR
+                                </span>
+
+                                <span
+                                    id="predictedRawINR"
+                                    class="font-semibold"
+                                >
+                                    ₹0
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MULTIPLE -->
+
+                        <div class="mt-4 p-4 rounded-xl bg-white/[0.025] border border-white/5">
+
+                            <div class="flex justify-between items-center">
+
+                                <div>
+                                    <p class="text-xs text-cine-muted">
+                                        Budget Multiple
+                                    </p>
+
+                                    <p class="text-[10px] text-cine-muted mt-1">
+                                        Revenue ÷ Budget
+                                    </p>
+                                </div>
+
+                                <div
+                                    id="multipleValue"
+                                    class="display-font text-2xl font-bold text-cine-green"
+                                >
+                                    0.00x
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BARS -->
+
+                        <div class="mt-5 space-y-5">
+
+                            <div>
+
+                                <div class="flex justify-between text-[11px] mb-2">
+                                    <span class="text-cine-muted">
+                                        Budget
+                                    </span>
+
+                                    <span id="budgetDisplay">
+                                        ₹0 Cr
+                                    </span>
+                                </div>
+
+                                <div class="bar-bg">
+                                    <div
+                                        id="budgetBar"
+                                        class="bar-fill"
+                                        style="width: 20%"
+                                    ></div>
+                                </div>
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="flex justify-between text-[11px] mb-2">
+                                    <span class="text-cine-muted">
+                                        Predicted Revenue
+                                    </span>
+
+                                    <span id="revenueDisplay">
+                                        ₹0 Cr
+                                    </span>
+                                </div>
+
+                                <div class="bar-bg">
+                                    <div
+                                        id="revenueBar"
+                                        class="bar-fill"
+                                        style="width: 50%"
+                                    ></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] text-cine-muted mono-font"
+                        >
+                            <span>
+                                ELASTIC NET MODEL
+                            </span>
+
+                            <span>
+                                LIVE API
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+
+        <!-- FOOTER INFO -->
+
+        <div
+            class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-cine-muted mono-font"
+        >
+
+            <span>
+                CINEPHILE • AI BOX OFFICE PREDICTION
+            </span>
+
+            <span>
+                POWERED BY MACHINE LEARNING
+            </span>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- ================= LOADING OVERLAY ================= -->
+
+<div
+    id="loadingOverlay"
+    class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-md items-center justify-center"
+>
+
+    <div
+        class="w-[90%] max-w-sm rounded-2xl border border-white/10 bg-cine-card p-8 text-center shadow-glowStrong"
+    >
+
+        <div class="flex justify-center mb-5">
+            <div class="loader"></div>
+        </div>
+
+        <h3 class="display-font text-xl font-bold">
+            Running Prediction
+        </h3>
+
+        <p class="text-xs text-cine-muted mt-2">
+            Sending film parameters to the Cinephile ML engine...
+        </p>
+
+        <div
+            class="mt-5 text-[10px] text-cine-green mono-font uppercase tracking-widest"
+        >
+            Processing Model
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ERROR TOAST ================= -->
+
+<div
+    id="errorToast"
+    class="hidden fixed bottom-5 right-5 z-[60] w-[90%] max-w-sm"
+>
+
+    <div
+        class="rounded-xl border border-red-500/20 bg-[#160D0D] p-4 shadow-2xl"
+    >
+
+        <div class="flex gap-3">
+
+            <div
+                class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0"
+            >
+                <i data-lucide="circle-alert" class="w-4 h-4 text-red-400"></i>
+            </div>
+
+            <div>
+
+                <p class="text-sm font-semibold text-red-300">
+                    Prediction Failed
+                </p>
+
+                <p
+                    id="errorMessage"
+                    class="text-xs text-red-200/70 mt-1 leading-5"
+                >
+                    Something went wrong.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // =========================================================
+    // FLASK API
+    // =========================================================
+
+    const API_URL = "http://127.0.0.1:5000/api/predict";
+
+
+    // =========================================================
+    // ELEMENTS
+    // =========================================================
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const emptyState = document.getElementById("emptyState");
+    const predictionResult = document.getElementById("predictionResult");
+
+    const predictBtn = document.getElementById("predictBtn");
+
+    const predictedCroreVal =
+        document.getElementById("predictedCroreVal");
+
+    const predictedRawINR =
+        document.getElementById("predictedRawINR");
+
+    const multipleValue =
+        document.getElementById("multipleValue");
+
+    const predictionVerdict =
+        document.getElementById("predictionVerdict");
+
+    const budgetDisplay =
+        document.getElementById("budgetDisplay");
+
+    const revenueDisplay =
+        document.getElementById("revenueDisplay");
+
+    const budgetBar =
+        document.getElementById("budgetBar");
+
+    const revenueBar =
+        document.getElementById("revenueBar");
+
+    const errorToast =
+        document.getElementById("errorToast");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+
+    // =========================================================
+    // FORMATTERS
+    // =========================================================
+
+    function formatINR(value) {
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 0
+        }).format(value);
+
+    }
+
+
+    function formatCrore(value) {
+
+        return new Intl.NumberFormat("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+
+    }
+
+
+    // =========================================================
+    // ERROR
+    // =========================================================
+
+    function showError(message) {
+
+        errorMessage.textContent = message;
+
+        errorToast.classList.remove("hidden");
+
+        setTimeout(() => {
+            errorToast.classList.add("hidden");
+        }, 5000);
+
+    }
+
+
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    function setLoading(isLoading) {
+
+        if (isLoading) {
+
+            loadingOverlay.classList.remove("hidden");
+            loadingOverlay.classList.add("flex");
+
+            predictBtn.disabled = true;
+            predictBtn.classList.add("opacity-60", "cursor-not-allowed");
+
+        } else {
+
+            loadingOverlay.classList.add("hidden");
+            loadingOverlay.classList.remove("flex");
+
+            predictBtn.disabled = false;
+            predictBtn.classList.remove("opacity-60", "cursor-not-allowed");
+
+        }
+
+    }
+
+
+    // =========================================================
+    // PREDICTION
+    // =========================================================
+
+    async function triggerPrediction() {
+
+        const releasePeriod =
+            document.getElementById("releasePeriod").value;
+
+        const whetherRemake =
+            document.getElementById("whetherRemake").value;
+
+        const whetherFranchise =
+            document.getElementById("whetherFranchise").value;
+
+        const genre =
+            document.getElementById("genre").value;
+
+        const leadStar =
+            document.getElementById("leadStar").value;
+
+        const director =
+            document.getElementById("director").value;
+
+        const musicDirector =
+            document.getElementById("musicDirector").value;
+
+        const numberOfScreens =
+            Number(document.getElementById("numberOfScreens").value);
+
+        const budgetCrore =
+            Number(document.getElementById("budget").value);
+
+
+        // Checkbox values
+        const newActor =
+            document.getElementById("newActor").checked
+                ? "Yes"
+                : "No";
+
+        const newDirector =
+            document.getElementById("newDirector").checked
+                ? "Yes"
+                : "No";
+
+        const newMusicDirector =
+            document.getElementById("newMusicDirector").checked
+                ? "Yes"
+                : "No";
+
+
+        // Validation
+
+        if (!numberOfScreens || numberOfScreens <= 0) {
+
+            showError("Please enter a valid number of screens.");
+            return;
+
+        }
+
+
+        if (!budgetCrore || budgetCrore <= 0) {
+
+            showError("Please enter a valid budget.");
+            return;
+
+        }
+
+
+        /*
+         * Frontend displays budget in CRORE.
+         *
+         * Backend expects Budget(INR).
+         *
+         * 1 Crore = 10,000,000 INR
+         */
+
+        const budgetINR =
+            budgetCrore * 10000000;
+
+
+        // =====================================================
+        // API PAYLOAD
+        // =====================================================
+
+        const payload = {
+
+            releasePeriod: releasePeriod,
+
+            whetherRemake: whetherRemake,
+
+            whetherFranchise: whetherFranchise,
+
+            genre: genre,
+
+            newActor: newActor,
+
+            newDirector: newDirector,
+
+            newMusicDirector: newMusicDirector,
+
+            leadStar: leadStar,
+
+            director: director,
+
+            musicDirector: musicDirector,
+
+            numberOfScreens: numberOfScreens,
+
+            budget: budgetINR
+
+        };
+
+
+        console.log("Sending prediction request:");
+        console.log(payload);
+
+
+        setLoading(true);
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+
+            });
+
+
+            const result = await response.json();
+
+
+            console.log("Backend response:");
+            console.log(result);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.error ||
+                    `Server returned HTTP ${response.status}`
+                );
+
+            }
+
+
+            if (!result.success) {
+
+                throw new Error(
+                    result.error ||
+                    "Prediction failed."
+                );
+
+            }
+
+
+            const predictedRevenueINR =
+                Number(result.predictedRevenue);
+
+
+            if (!Number.isFinite(predictedRevenueINR)) {
+
+                throw new Error(
+                    "Backend returned an invalid prediction."
+                );
+
+            }
+
+
+            // =================================================
+            // CONVERSION
+            // =================================================
+
+            const predictedRevenueCrore =
+                predictedRevenueINR / 10000000;
+
+
+            const multiple =
+                predictedRevenueCrore / budgetCrore;
+
+
+            // =================================================
+            // DISPLAY
+            // =================================================
+
+            predictedCroreVal.textContent =
+                "₹" + formatCrore(predictedRevenueCrore);
+
+
+            predictedRawINR.textContent =
+                formatINR(predictedRevenueINR);
+
+
+            multipleValue.textContent =
+                multiple.toFixed(2) + "x";
+
+
+            budgetDisplay.textContent =
+                "₹" + formatCrore(budgetCrore) + " Cr";
+
+
+            revenueDisplay.textContent =
+                "₹" + formatCrore(predictedRevenueCrore) + " Cr";
+
+
+            // =================================================
+            // VERDICT
+            // =================================================
+
+            let verdict = "";
+
+            if (multiple >= 3) {
+
+                verdict = "Strong theatrical potential";
+
+            } else if (multiple >= 2) {
+
+                verdict = "Healthy box office outlook";
+
+            } else if (multiple >= 1) {
+
+                verdict = "Potential recovery";
+
+            } else {
+
+                verdict = "Below budget estimate";
+
+            }
+
+
+            predictionVerdict.textContent = verdict;
+
+
+            // =================================================
+            // BARS
+            // =================================================
+
+            const maximum =
+                Math.max(
+                    budgetCrore,
+                    predictedRevenueCrore,
+                    1
+                );
+
+
+            const budgetPercentage =
+                Math.min(
+                    100,
+                    (budgetCrore / maximum) * 100
+                );
+
+
+            const revenuePercentage =
+                Math.min(
+                    100,
+                    (predictedRevenueCrore / maximum) * 100
+                );
+
+
+            budgetBar.style.width =
+                budgetPercentage + "%";
+
+
+            revenueBar.style.width =
+                revenuePercentage + "%";
+
+
+            // =================================================
+            // SWITCH UI
+            // =================================================
+
+            emptyState.classList.add("hidden");
+
+            predictionResult.classList.remove("hidden");
+
+            predictionResult.classList.remove("fade-up");
+
+            void predictionResult.offsetWidth;
+
+            predictionResult.classList.add("fade-up");
+
+
+            // Refresh icons
+
+            lucide.createIcons();
+
+
+        } catch (error) {
+
+            console.error("Prediction error:", error);
+
+
+            let message =
+                error.message ||
+                "Unable to connect to the prediction server.";
+
+
+            if (
+                error instanceof TypeError &&
+                error.message.includes("fetch")
+            ) {
+
+                message =
+                    "Cannot connect to Flask. Make sure your backend is running on http://127.0.0.1:5000";
+
+            }
+
+
+            showError(message);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    }
+
+
+    // =========================================================
+    // SAMPLE DATA
+    // =========================================================
+
+    function populateSampleData() {
+
+        document.getElementById("releasePeriod").value =
+            "Festive/Holiday";
+
+        document.getElementById("whetherRemake").value =
+            "No";
+
+        document.getElementById("whetherFranchise").value =
+            "Yes";
+
+        document.getElementById("genre").value =
+            "Sci-Fi";
+
+        document.getElementById("newActor").checked =
+            false;
+
+        document.getElementById("newDirector").checked =
+            false;
+
+        document.getElementById("newMusicDirector").checked =
+            false;
+
+        document.getElementById("leadStar").value =
+            "Pan-India Superstar";
+
+        document.getElementById("director").value =
+            "Blockbuster Visionary";
+
+        document.getElementById("musicDirector").value =
+            "Chartbuster Ace";
+
+        document.getElementById("numberOfScreens").value =
+            "4200";
+
+        document.getElementById("budget").value =
+            "85";
+
+    }
+
+
+    // =========================================================
+    // RESET
+    // =========================================================
+
+    function resetForm() {
+
+        document.getElementById("releasePeriod").value =
+            "Festive/Holiday";
+
+        document.getElementById("whetherRemake").value =
+            "No";
+
+        document.getElementById("whetherFranchise").value =
+            "Yes";
+
+        document.getElementById("genre").value =
+            "Action";
+
+        document.getElementById("newActor").checked =
+            false;
+
+        document.getElementById("newDirector").checked =
+            false;
+
+        document.getElementById("newMusicDirector").checked =
+            false;
+
+        document.getElementById("leadStar").value =
+            "Pan-India Superstar";
+
+        document.getElementById("director").value =
+            "Blockbuster Visionary";
+
+        document.getElementById("musicDirector").value =
+            "Chartbuster Ace";
+
+        document.getElementById("numberOfScreens").value =
+            "4200";
+
+        document.getElementById("budget").value =
+            "85";
+
+
+        emptyState.classList.remove("hidden");
+
+        predictionResult.classList.add("hidden");
+
+
+        predictedCroreVal.textContent =
+            "₹0.00";
+
+        predictedRawINR.textContent =
+            "₹0";
+
+        multipleValue.textContent =
+            "0.00x";
+
+        budgetDisplay.textContent =
+            "₹0 Cr";
+
+        revenueDisplay.textContent =
+            "₹0 Cr";
+
+        budgetBar.style.width =
+            "20%";
+
+        revenueBar.style.width =
+            "50%";
+
+    }
+
+
+    // =========================================================
+    // BUTTONS
+    // =========================================================
+
+    document
+        .getElementById("sampleBtn")
+        .addEventListener("click", function () {
+
+            populateSampleData();
+
+        });
+
+
+    document
+        .getElementById("resetFormBtn")
+        .addEventListener("click", function () {
+
+            resetForm();
+
+        });
+
+
+    // =========================================================
+    // INITIALIZE ICONS
+    // =========================================================
+
+    lucide.createIcons();
+
+</script>
+
+</body>
+</html>

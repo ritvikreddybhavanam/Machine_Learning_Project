@@ -1,0 +1,2 @@
+model_name,target,number_of_features,training_samples,testing_samples,alpha,l1_ratio,mae,mse,rmse,r2
+Elastic Net Regression,Revenue(INR),2460,1356,340,0.1,0.5,66956283.08245439,1.2780370698296384e+16,113050301.62850687,0.7936998811005649
