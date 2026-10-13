@@ -1739,7 +1739,7 @@
     // FLASK API
     // =========================================================
 
-    const API_URL = "http://127.0.0.1:5000/api/predict";
+    const API_URL = "https://machine-learning-project-9wed.onrender.com/api/predict";
 
 
     // =========================================================
@@ -2162,7 +2162,7 @@
             ) {
 
                 message =
-                    "Cannot connect to Flask. Make sure your backend is running on http://127.0.0.1:5000";
+                    "Cannot connect to the prediction backend on Render (" + API_URL + "). If the free instance is spinning up from idle, please wait 30–45 seconds and try again.";
 
             }
 

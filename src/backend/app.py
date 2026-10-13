@@ -11,10 +11,26 @@ app = Flask(__name__)
 # For production, you can restrict this to your website's URL.
 CORS(app)
 
-# Find the repository root from src/backend/app.py
-BASE_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..")
-)
+# Find the repository root safely across both local and Render environments
+def get_base_dir():
+    candidates = [
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")),
+        os.path.abspath(os.getcwd())
+    ]
+    for cand in candidates:
+        m = os.path.join(cand, "src", "models", "final_elastic_net_model.pkl")
+        d = os.path.join(cand, "Dataset", "processed", "cleaned_movie_data.csv")
+        if os.path.exists(m) and os.path.exists(d):
+            return cand
+    cur = os.path.abspath(os.path.dirname(__file__))
+    for _ in range(5):
+        if os.path.exists(os.path.join(cur, "src", "models", "final_elastic_net_model.pkl")):
+            return cur
+        cur = os.path.dirname(cur)
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+BASE_DIR = get_base_dir()
 
 MODEL_PATH = os.path.join(
     BASE_DIR, "src", "models", "final_elastic_net_model.pkl"
