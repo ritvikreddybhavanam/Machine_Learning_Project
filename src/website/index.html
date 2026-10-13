@@ -58,15 +58,101 @@
 
         body {
             margin: 0;
-            background:
-                radial-gradient(
-                    circle at 50% -10%,
-                    rgba(0, 224, 84, 0.08),
-                    transparent 35%
-                ),
-                #080A0C;
+            background: #080A0C;
             color: #f5f7f8;
             font-family: Inter, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scoped Ambient Telugu Cinema Poster Wallpaper (Only for Top / Predictor Section) */
+        .cinema-bg-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.38;
+            filter: contrast(115%) brightness(95%);
+        }
+
+        .cinema-bg-grid {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            gap: 10px;
+            /* Default large desktop: 6 columns x 3 rows */
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+
+        .cinema-bg-item {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.85);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #11161A;
+        }
+
+        .cinema-bg-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        /* Responsive Breakpoints for Background Grid (RWD) */
+        @media (max-width: 1200px) {
+            .cinema-bg-grid {
+                grid-template-columns: repeat(5, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .cinema-bg-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(5, 1fr);
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cinema-bg-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(6, 1fr);
+                gap: 5px;
+                padding: 4px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .cinema-bg-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(9, 1fr);
+                gap: 4px;
+            }
+        }
+
+        .bg-overlay-vignette {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 15%, rgba(0, 224, 84, 0.08), transparent 50%),
+                linear-gradient(180deg, rgba(8, 10, 12, 0.45) 0%, rgba(8, 10, 12, 0.80) 75%, rgba(8, 10, 12, 1) 100%);
         }
 
         .display-font {
@@ -266,7 +352,7 @@
     </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen bg-[#080A0C]">
 
 <!-- ================= HEADER ================= -->
 
@@ -276,7 +362,7 @@
 
             <div class="flex items-center gap-3">
                 <div
-                    class="w-9 h-9 rounded-lg bg-cine-green flex items-center justify-center"
+                    class="w-9 h-9 rounded-lg bg-cine-green flex items-center justify-center shadow-glow"
                 >
                     <i data-lucide="clapperboard" class="w-5 h-5 text-black"></i>
                 </div>
@@ -292,9 +378,31 @@
                 </div>
             </div>
 
-            <div class="hidden sm:flex items-center gap-2 text-xs text-cine-muted">
-                <span class="status-dot"></span>
-                <span>Prediction Engine Online</span>
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-6 text-xs font-medium">
+                <a href="#prediction-section" class="text-white hover:text-cine-green transition flex items-center gap-1.5">
+                    <i data-lucide="calculator" class="w-3.5 h-3.5 text-cine-green"></i>
+                    Predictor
+                </a>
+                <a href="#eda-section" class="text-cine-muted hover:text-cine-green transition flex items-center gap-1.5">
+                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-cine-green"></i>
+                    EDA Report
+                </a>
+                <a href="#model-diagnostics" class="text-cine-muted hover:text-cine-green transition flex items-center gap-1.5">
+                    <i data-lucide="binary" class="w-3.5 h-3.5 text-cine-green"></i>
+                    Model Metrics
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="#eda-section" class="px-3 py-1.5 rounded-lg bg-cine-green/10 border border-cine-green/30 text-cine-green text-xs font-semibold hover:bg-cine-green hover:text-black transition flex items-center gap-1.5">
+                    <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
+                    <span>EDA Report</span>
+                </a>
+                <div class="hidden sm:flex items-center gap-2 text-xs text-cine-muted pl-2 border-l border-white/10">
+                    <span class="status-dot"></span>
+                    <span>Engine Online</span>
+                </div>
             </div>
 
         </div>
@@ -302,11 +410,36 @@
 </header>
 
 
-<!-- ================= MAIN ================= -->
+<!-- ================= TOP HERO & PREDICTOR SECTION (WITH CINEMA POSTERS) ================= -->
+<div id="prediction-section" class="relative overflow-hidden grid-bg">
 
-<main class="relative min-h-screen grid-bg">
+    <!-- ================= TELUGU CINEMA BACKGROUND GALLERY (SCOPED TO PREDICTOR ONLY) ================= -->
+    <div class="cinema-bg-container" aria-hidden="true">
+        <div class="cinema-bg-grid">
+            <div class="cinema-bg-item"><img src="posters/poster1.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=75';" alt="Poster 1"></div>
+            <div class="cinema-bg-item"><img src="posters/poster2.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=600&q=75';" alt="Poster 2"></div>
+            <div class="cinema-bg-item"><img src="posters/poster3.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=75';" alt="Poster 3"></div>
+            <div class="cinema-bg-item"><img src="posters/poster4.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=600&q=75';" alt="Poster 4"></div>
+            <div class="cinema-bg-item"><img src="posters/poster5.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=600&q=75';" alt="Poster 5"></div>
+            <div class="cinema-bg-item"><img src="posters/poster6.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=75';" alt="Poster 6"></div>
+            <div class="cinema-bg-item"><img src="posters/poster7.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=600&q=75';" alt="Poster 7"></div>
+            <div class="cinema-bg-item"><img src="posters/poster8.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=600&q=75';" alt="Poster 8"></div>
+            <div class="cinema-bg-item"><img src="posters/poster9.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=600&q=75';" alt="Poster 9"></div>
+            <div class="cinema-bg-item"><img src="posters/poster10.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?auto=format&fit=crop&w=600&q=75';" alt="Poster 10"></div>
+            <div class="cinema-bg-item"><img src="posters/poster11.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=75';" alt="Poster 11"></div>
+            <div class="cinema-bg-item"><img src="posters/poster12.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=600&q=75';" alt="Poster 12"></div>
+            <div class="cinema-bg-item"><img src="posters/poster13.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=75';" alt="Poster 13"></div>
+            <div class="cinema-bg-item"><img src="posters/poster14.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=75';" alt="Poster 14"></div>
+            <div class="cinema-bg-item"><img src="posters/poster15.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=600&q=75';" alt="Poster 15"></div>
+            <div class="cinema-bg-item"><img src="posters/poster16.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=600&q=75';" alt="Poster 16"></div>
+            <div class="cinema-bg-item"><img src="posters/poster17.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=600&q=75';" alt="Poster 17"></div>
+            <div class="cinema-bg-item"><img src="posters/poster18.jpg" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=75';" alt="Poster 18"></div>
+        </div>
+    </div>
 
-    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-12">
+    <div class="bg-overlay-vignette" aria-hidden="true"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-12">
 
         <!-- HERO -->
 
@@ -983,26 +1116,546 @@
 
         </div>
 
+    </div>
 
-        <!-- FOOTER INFO -->
+</div> <!-- Closes #prediction-section (Poster background ends here) -->
 
-        <div
-            class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-cine-muted mono-font"
-        >
 
-            <span>
-                CINEPHILE • AI BOX OFFICE PREDICTION
-            </span>
+<!-- ========================================================================= -->
+<!-- =========================== EDA REPORT SECTION ========================== -->
+<!-- ========================================================================= -->
 
-            <span>
-                POWERED BY MACHINE LEARNING
-            </span>
+<section id="eda-section" class="relative z-10 bg-[#080A0C] border-t border-white/10 pt-16 pb-12 scroll-mt-20">
+
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+
+        <!-- EDA HEADER -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cine-green/20 bg-cine-green/5 text-cine-green text-[11px] font-semibold uppercase tracking-wider mb-3">
+                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                    Exploratory Data Analysis Report
+                </div>
+                <h2 class="display-font text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+                    Dataset Insights & <span class="text-cine-green">Theatrical Trends</span>
+                </h2>
+                    <p class="text-sm text-cine-muted mt-2 max-w-3xl leading-relaxed">
+                        In-depth empirical analysis of 1,696 feature films. Explore revenue distributions, screen saturation effects, budget correlations, genre ROI, and predictive performance.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="px-3 py-1.5 rounded-lg bg-cine-card border border-white/10 text-cine-muted flex items-center gap-1.5">
+                        <i data-lucide="database" class="w-3.5 h-3.5 text-cine-green"></i>
+                        1,696 Records
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-cine-card border border-white/10 text-cine-muted flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-cine-green"></i>
+                        14 Core Attributes
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-cine-card border border-white/10 text-cine-muted flex items-center gap-1.5">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5 text-cine-green"></i>
+                        Elastic Net Regressor
+                    </span>
+                </div>
+            </div>
+
+            <!-- KEY KPI METRIC CARDS -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Total Dataset</div>
+                    <div class="result-number text-2xl sm:text-3xl text-white mt-1">1,696</div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Telugu & Indian Movies</div>
+                </div>
+
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Avg Revenue</div>
+                    <div class="result-number text-2xl sm:text-3xl text-cine-green mt-1">₹15.01<span class="text-xs text-white"> Cr</span></div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Mean Box Office Gross</div>
+                </div>
+
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Avg Budget</div>
+                    <div class="result-number text-2xl sm:text-3xl text-white mt-1">₹23.79<span class="text-xs text-cine-muted"> Cr</span></div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Mean Production Cost</div>
+                </div>
+
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Screen Reach</div>
+                    <div class="result-number text-2xl sm:text-3xl text-cine-green2 mt-1">4,600</div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Max Theatrical Screens</div>
+                </div>
+
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Screens Corr (r)</div>
+                    <div class="result-number text-2xl sm:text-3xl text-cine-green mt-1">0.90</div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Very Strong Linear Link</div>
+                </div>
+
+                <div class="section-card !p-4 bg-cine-card/90 border-white/10">
+                    <div class="text-[10px] mono-font uppercase tracking-wider text-cine-muted">Model Fit (R²)</div>
+                    <div class="result-number text-2xl sm:text-3xl text-cine-green mt-1">0.7937</div>
+                    <div class="text-[11px] text-cine-muted mt-0.5">Elastic Net Explanatory Power</div>
+                </div>
+            </div>
+
+            <!-- TAB FILTER BAR -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 p-2 rounded-xl bg-cine-dark border border-white/5">
+                <div class="flex flex-wrap gap-1.5" id="edaTabs">
+                    <button onclick="filterEda('all')" data-tab="all" class="eda-tab active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cine-green text-black transition">
+                        All Visualizations (14)
+                    </button>
+                    <button onclick="filterEda('distribution')" data-tab="distribution" class="eda-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-cine-muted hover:text-white transition">
+                        Distributions & Outliers
+                    </button>
+                    <button onclick="filterEda('correlation')" data-tab="correlation" class="eda-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-cine-muted hover:text-white transition">
+                        Correlations & Scatters
+                    </button>
+                    <button onclick="filterEda('categorical')" data-tab="categorical" class="eda-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-cine-muted hover:text-white transition">
+                        Genre & Market Drivers
+                    </button>
+                    <button onclick="filterEda('model')" data-tab="model" class="eda-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-cine-muted hover:text-white transition">
+                        Model Evaluation
+                    </button>
+                </div>
+
+                <div class="text-xs text-cine-muted px-2 flex items-center gap-1.5">
+                    <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-cine-green"></i>
+                    <span>Click any chart to zoom</span>
+                </div>
+            </div>
+
+            <!-- VISUALIZATION GALLERY GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="edaGrid">
+
+                <!-- Plot 1: Revenue Distribution -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="distribution" onclick="openChartModal('plots/1.png', 'Distribution of Movie Revenue', 'Theatrical gross revenue exhibits a classic right-skewed distribution. The vast majority of movies generate moderate theatrical collections (median ₹5.5 Cr), while elite blockbusters reach unprecedented heights up to ₹210+ Cr.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/1.png" alt="Revenue Distribution" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-cine-green mono-font border border-white/10">
+                            HISTOGRAM • KDE
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Revenue Distribution</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">01_EDA</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Right-skewed power law curve highlighting blockbuster revenue concentration.
+                    </p>
+                </div>
+
+                <!-- Plot 2: Number of Screens -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="distribution" onclick="openChartModal('plots/2.png', 'Distribution of Screen Counts', 'Displays the spread of theater screen allocations across releases. Average screen count is 554 screens, ranging from single-theater niche releases to 4,600+ theater pan-India mega releases.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/2.png" alt="Screen Count Distribution" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-cyan-400 mono-font border border-white/10">
+                            SCREENS DISTRIBUTION
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Distribution of Screens</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">02_EDA</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Analysis of theatrical footprints from limited art-house runs to nationwide mega-circuits.
+                    </p>
+                </div>
+
+                <!-- Plot 3: Heatmap Correlation -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="correlation" onclick="openChartModal('plots/10.png', 'Pearson Feature Correlation Heatmap', 'Calculated correlation coefficients between numerical metrics. Number of Screens exhibits a phenomenal 0.90 correlation with Revenue, while Budget demonstrates a 0.84 correlation, proving these as primary predictors.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/10.png" alt="Correlation Heatmap" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-amber-400 mono-font border border-white/10">
+                            CORRELATION MATRIX
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Feature Correlation Matrix</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">03_CORR</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Heatmap verifying screen reach (r=0.90) and budget (r=0.84) as dominant revenue drivers.
+                    </p>
+                </div>
+
+                <!-- Plot 4: Budget vs Revenue Scatter -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="correlation" onclick="openChartModal('plots/7.png', 'Budget vs Box Office Revenue', 'Scatter analysis illustrating the positive relationship between production capital and gross collections. While higher budgets generally scale gross revenues, substantial variance exists between high-margin blockbusters and commercial misfires.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/7.png" alt="Budget vs Revenue" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-cine-green mono-font border border-white/10">
+                            SCATTER PLOT
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Budget vs Revenue</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">04_SCATTER</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Bivariate scatter plot detailing the ROI curve across different budgetary tiers.
+                    </p>
+                </div>
+
+                <!-- Plot 5: Screen Count vs Revenue Scatter -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="correlation" onclick="openChartModal('plots/8.png', 'Number of Screens vs Revenue', 'Demonstrates that screen capacity directly sets the theoretical ceiling for theatrical box office collections during opening weekends and lifetime run.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/8.png" alt="Screens vs Revenue" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-blue-400 mono-font border border-white/10">
+                            CAPACITY ANALYSIS
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Screens vs Revenue</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">05_SCATTER</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Linear regression trajectory between theater screen deployment and earnings.
+                    </p>
+                </div>
+
+                <!-- Plot 6: Genre Boxplot Distribution -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="categorical" onclick="openChartModal('plots/14.png', 'Revenue Distribution Across Genres', 'Comparative boxplot across 14 genres. Masala (avg ₹100.25 Cr) and Action (avg ₹34.60 Cr) lead top grossing metrics, while Drama and Comedy demonstrate consistent volume with moderate median revenues.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/14.png" alt="Revenue by Genre" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-purple-400 mono-font border border-white/10">
+                            GENRE ANALYSIS
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Revenue by Genre</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">06_GENRE</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Boxplot showing profitability and variance ranges across movie genres.
+                    </p>
+                </div>
+
+                <!-- Plot 7: Franchise Multiplier -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="categorical" onclick="openChartModal('plots/12.png', 'Revenue by Franchise Status', 'Franchise sequels and cinematic universe installments generate an average of ₹41.39 Cr compared to ₹13.67 Cr for standalone films (+202% franchise lift), drastically derisking theatrical investments.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/12.png" alt="Franchise Impact" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-cine-green2 mono-font border border-white/10">
+                            FRANCHISE EFFECT (+202%)
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Franchise vs Standalone</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">07_FRANCHISE</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Visual proof of pre-existing intellectual property powering superior box office multiples.
+                    </p>
+                </div>
+
+                <!-- Plot 8: Holiday vs Normal Release Period -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="categorical" onclick="openChartModal('plots/13.png', 'Revenue by Release Window', 'Holiday & festive weekend releases average ₹19.80 Cr versus ₹12.16 Cr for regular release periods (+62.8% boost), confirming the paramount importance of release calendar optimization.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/13.png" alt="Release Period Boxplot" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-emerald-400 mono-font border border-white/10">
+                            CALENDAR TIMING (+62%)
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Holiday vs Regular Release</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">08_WINDOW</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Theatrical premium delivered by Sankranti, Dussehra, and festive calendar slots.
+                    </p>
+                </div>
+
+                <!-- Plot 9: Actual vs Predicted Revenue (Model Evaluation) -->
+                <div id="model-diagnostics" class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer scroll-mt-24" data-category="model" onclick="openChartModal('plots/15.png', 'Actual vs Predicted Revenue (Elastic Net)', 'Evaluates test set predictions against ground truth theatrical revenues. The Elastic Net model achieves an R² score of 0.7937 with MAE of ₹6.69 Cr, capturing ~80% of revenue variance.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/15.png" alt="Model Predictions vs Actuals" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-cine-green mono-font border border-white/10">
+                            EVALUATION (R² = 0.7937)
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Actual vs Predicted Revenue</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">09_MODEL</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Regression fit on holdout test set with tight convergence along the 45° diagonal.
+                    </p>
+                </div>
+
+                <!-- Plot 10: Movies by Genre Count -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="categorical" onclick="openChartModal('plots/3.png', 'Volume of Movies by Genre', 'Frequency count of 1,696 movies categorized across genres. Drama dominates with 639 titles (37.7%), followed by Comedy with 284 titles (16.7%), and Thriller with 211 titles (12.4%).')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/3.png" alt="Movies by Genre Count" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-pink-400 mono-font border border-white/10">
+                            VOLUME BREAKDOWN
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Movie Production by Genre</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">10_VOLUME</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Categorical frequency distribution of movie releases across 14 genres.
+                    </p>
+                </div>
+
+                <!-- Plot 11: Remake vs Non-Remake Boxplot -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="categorical" onclick="openChartModal('plots/11.png', 'Revenue by Remake Status', 'Analysis of original screenplays versus remakes. While remakes offer established storylines, original scripts paired with tier-1 directors generate higher peak box office ceilings.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/11.png" alt="Revenue by Remake Status" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-amber-300 mono-font border border-white/10">
+                            IP ADAPTATIONS
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Remakes vs Originals</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">11_REMAKES</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Boxplot comparing box office stability between adaptations and fresh scripts.
+                    </p>
+                </div>
+
+                <!-- Plot 12: Revenue Outliers Boxplot -->
+                <div class="eda-item section-card !p-4 bg-cine-card hover:border-cine-green/40 transition group cursor-pointer" data-category="distribution" onclick="openChartModal('plots/9.png', 'Revenue Outlier Detection', 'Standard boxplot highlighting top statistical outliers representing historic pan-India blockbusters exceeding 1.5x IQR above the third quartile.')">
+                    <div class="relative overflow-hidden rounded-xl bg-black border border-white/5 aspect-[16/10] mb-4">
+                        <img src="plots/9.png" alt="Revenue Outliers" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded bg-black/80 backdrop-blur-md text-[10px] font-semibold text-rose-400 mono-font border border-white/10">
+                            OUTLIER DETECTION
+                        </span>
+                        <div class="absolute inset-0 bg-cine-green/5 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="px-3 py-1.5 rounded-full bg-black/90 text-xs text-white border border-cine-green/30 flex items-center gap-1.5">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-cine-green"></i> View Full Chart
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="font-bold text-sm text-white group-hover:text-cine-green transition">Revenue Outlier Analysis</h4>
+                        <span class="text-[10px] text-cine-muted mono-font">12_OUTLIERS</span>
+                    </div>
+                    <p class="text-xs text-cine-muted leading-relaxed line-clamp-2">
+                        Identification of industry mega-hits that skew baseline distributions.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- STATISTICAL SUMMARY & INSIGHTS CARDS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+
+                <!-- Summary Statistics Table -->
+                <div class="section-card">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-7 h-7 rounded-md bg-cine-green/10 flex items-center justify-center">
+                            <i data-lucide="table-2" class="w-4 h-4 text-cine-green"></i>
+                        </div>
+                        <h3 class="display-font text-base font-bold">Numerical Attributes Summary (1,696 Movies)</h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/10 text-cine-muted mono-font">
+                                    <th class="py-2.5 px-3">Metric</th>
+                                    <th class="py-2.5 px-3 text-right">Screens</th>
+                                    <th class="py-2.5 px-3 text-right">Budget (₹ Cr)</th>
+                                    <th class="py-2.5 px-3 text-right text-cine-green">Revenue (₹ Cr)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5 font-medium">
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">Mean</td>
+                                    <td class="py-2 px-3 text-right">553.8</td>
+                                    <td class="py-2 px-3 text-right">₹23.79 Cr</td>
+                                    <td class="py-2 px-3 text-right text-cine-green font-semibold">₹15.01 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">Std Dev</td>
+                                    <td class="py-2 px-3 text-right">783.2</td>
+                                    <td class="py-2 px-3 text-right">₹61.38 Cr</td>
+                                    <td class="py-2 px-3 text-right">₹24.36 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">Min (Floor)</td>
+                                    <td class="py-2 px-3 text-right">1</td>
+                                    <td class="py-2 px-3 text-right">₹0.001 Cr</td>
+                                    <td class="py-2 px-3 text-right">₹0.03 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">25% (Q1)</td>
+                                    <td class="py-2 px-3 text-right">30</td>
+                                    <td class="py-2 px-3 text-right">₹0.12 Cr</td>
+                                    <td class="py-2 px-3 text-right">₹1.50 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">50% (Median)</td>
+                                    <td class="py-2 px-3 text-right">200</td>
+                                    <td class="py-2 px-3 text-right">₹1.24 Cr</td>
+                                    <td class="py-2 px-3 text-right font-semibold">₹5.50 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02]">
+                                    <td class="py-2 px-3 text-cine-muted mono-font">75% (Q3)</td>
+                                    <td class="py-2 px-3 text-right">800</td>
+                                    <td class="py-2 px-3 text-right">₹17.79 Cr</td>
+                                    <td class="py-2 px-3 text-right">₹19.00 Cr</td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.02] bg-cine-green/[0.03]">
+                                    <td class="py-2 px-3 text-cine-green mono-font font-bold">Max (Peak)</td>
+                                    <td class="py-2 px-3 text-right font-bold text-white">4,600</td>
+                                    <td class="py-2 px-3 text-right font-bold text-white">₹801.61 Cr</td>
+                                    <td class="py-2 px-3 text-right font-bold text-cine-green">₹210.00 Cr</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Key Analytical Insights -->
+                <div class="section-card">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-7 h-7 rounded-md bg-cine-green/10 flex items-center justify-center">
+                            <i data-lucide="lightbulb" class="w-4 h-4 text-cine-green"></i>
+                        </div>
+                        <h3 class="display-font text-base font-bold">Key Empirical Findings</h3>
+                    </div>
+
+                    <div class="space-y-3.5 text-xs leading-relaxed text-cine-muted">
+                        <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                            <span class="w-5 h-5 rounded-full bg-cine-green/10 text-cine-green flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span>
+                            <div>
+                                <span class="text-white font-semibold">Screen Count is the #1 Predictor (r = 0.898):</span>
+                                Theater saturation directly dictates opening capacity and lifetime box office potential. Wider distribution is the single biggest catalyst for theatrical success.
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                            <span class="w-5 h-5 rounded-full bg-cine-green/10 text-cine-green flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span>
+                            <div>
+                                <span class="text-white font-semibold">Franchise Multiplier Effect (+202%):</span>
+                                Franchise installments average ₹41.39 Cr vs ₹13.67 Cr for standalone stories. Recognized IP significantly accelerates theatrical conversion and repeat viewership.
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                            <span class="w-5 h-5 rounded-full bg-cine-green/10 text-cine-green flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span>
+                            <div>
+                                <span class="text-white font-semibold">Holiday Release Premium (+62.8%):</span>
+                                Movies released during festive windows average ₹19.80 Cr versus ₹12.16 Cr in regular slots due to heightened family attendance and longer vacation runs.
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                            <span class="w-5 h-5 rounded-full bg-cine-green/10 text-cine-green flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span>
+                            <div>
+                                <span class="text-white font-semibold">Genre Commercial Hierarchy:</span>
+                                Commercial Masala (₹100.25 Cr avg) and Action (₹34.60 Cr avg) drive maximum peak box office gross, whereas Drama (639 titles) represents high volume with modest margins.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FOOTER INFO -->
+            <div
+                class="mt-14 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-cine-muted mono-font pt-6 border-t border-white/5"
+            >
+                <span>
+                    CINEPHILE • AI BOX OFFICE PREDICTION & EDA REPORT
+                </span>
+
+                <span>
+                    POWERED BY MACHINE LEARNING • ELASTIC NET REGRESSION
+                </span>
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
-</main>
+
+<!-- ================= CHART LIGHTBOX MODAL ================= -->
+<div id="chartModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4" onclick="closeChartModal(event)">
+    <div class="relative max-w-4xl w-full bg-cine-card border border-white/10 rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+        <!-- Close Button -->
+        <button onclick="closeChartModal()" class="absolute top-4 right-4 w-9 h-9 rounded-lg bg-white/5 hover:bg-white/15 text-cine-muted hover:text-white flex items-center justify-center transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <div class="mb-4">
+            <span class="px-2.5 py-1 rounded bg-cine-green/10 text-cine-green text-[10px] font-semibold uppercase tracking-wider mono-font">
+                EDA Visualization Preview
+            </span>
+            <h3 id="modalChartTitle" class="display-font text-xl font-bold text-white mt-2">Chart Title</h3>
+            <p id="modalChartDesc" class="text-xs text-cine-muted mt-1 leading-relaxed">Chart description</p>
+        </div>
+
+        <div class="relative bg-black rounded-xl p-2 border border-white/5 overflow-hidden flex items-center justify-center max-h-[65vh]">
+            <img id="modalChartImg" src="" alt="Zoomed Chart" class="max-h-[60vh] w-auto max-w-full object-contain rounded-lg">
+        </div>
+
+        <div class="mt-4 flex items-center justify-between text-xs text-cine-muted">
+            <span class="mono-font text-[10px]">Cinephile Analytics Engine</span>
+            <button onclick="closeChartModal()" class="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition">
+                Close Preview
+            </button>
+        </div>
+    </div>
+</div>
 
 
 <!-- ================= LOADING OVERLAY ================= -->
@@ -1663,6 +2316,64 @@
 
         });
 
+
+    // =========================================================
+    // EDA REPORT INTERACTIVITY & LIGHTBOX
+    // =========================================================
+
+    function filterEda(category) {
+        const tabs = document.querySelectorAll("#edaTabs .eda-tab");
+        tabs.forEach(tab => {
+            if (tab.dataset.tab === category) {
+                tab.className = "eda-tab active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-cine-green text-black transition";
+            } else {
+                tab.className = "eda-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-cine-muted hover:text-white transition";
+            }
+        });
+
+        const items = document.querySelectorAll("#edaGrid .eda-item");
+        items.forEach(item => {
+            if (category === "all" || item.dataset.category === category) {
+                item.classList.remove("hidden");
+            } else {
+                item.classList.add("hidden");
+            }
+        });
+    }
+
+    function openChartModal(src, title, desc) {
+        const modal = document.getElementById("chartModal");
+        const modalImg = document.getElementById("modalChartImg");
+        const modalTitle = document.getElementById("modalChartTitle");
+        const modalDesc = document.getElementById("modalChartDesc");
+
+        modalImg.src = src;
+        modalTitle.textContent = title;
+        modalDesc.textContent = desc;
+
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        lucide.createIcons();
+    }
+
+    function closeChartModal(e) {
+        if (e && e.target !== e.currentTarget && !e.target.closest("button")) {
+            return;
+        }
+        const modal = document.getElementById("chartModal");
+        modal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            const modal = document.getElementById("chartModal");
+            if (modal && !modal.classList.contains("hidden")) {
+                modal.classList.add("hidden");
+                document.body.style.overflow = "";
+            }
+        }
+    });
 
     // =========================================================
     // INITIALIZE ICONS
